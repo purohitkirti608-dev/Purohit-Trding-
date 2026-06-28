@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purohit Trading</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            margin: 0;
+            padding: 15px;
+        }
+        h2 {
+            text-align: center;
+            color: #38bdf8;
+            margin-bottom: 20px;
+        }
+        .form-box {
+            background-color: #1e293b;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px solid #334155;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            background-color: #0f172a;
+            border: 1px solid #475569;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 15px;
+        }
+        textarea {
+            resize: vertical;
+            height: 70px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0369a1;
+        }
+        .table-container {
+            overflow-x: auto;
+            background-color: #1e293b;
+            border-radius: 8px;
+            border: 1px solid #334155;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            min-width: 800px;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #334155;
+            font-size: 14px;
+            vertical-align: top;
+        }
+        th {
+            background-color: #334155;
+            color: #38bdf8;
+        }
+        tr:nth-child(even) {
+            background-color: #1e293b;
+        }
+        .text-profit { color: #4ade80; font-weight: bold; }
+        .text-loss { color: #f87171; font-weight: bold; }
+        .total-box {
+            margin-top: 15px;
+            padding: 12px;
+            background-color: #334155;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+        }
+        .trade-img {
+            max-width: 80px;
+            max-height: 80px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .desc-text {
+            font-size: 12px;
+            color: #cbd5e1;
+            max-width: 150px;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>PUROHIT TRADING</h2>
+
+    <!-- डेटा एंट्री फॉर्म -->
+    <div class="form-box">
+        <div class="form-group">
+            <label>Date (तारीख):</label>
+            <input type="date" id="tradeDate">
+        </div>
+        <div class="form-group">
+            <label>Position Name (ट्रेड का नाम):</label>
+            <input type="text" id="posName" placeholder="जैसे: NIFTY CE, SBI">
+        </div>
+        <div class="form-group">
+            <label>Entry Price:</label>
+            <input type="number" id="entryPrice" placeholder="0.00">
+        </div>
+        <div class="form-group">
+            <label>Exit Price:</label>
+            <input type="number" id="exitPrice" placeholder="0.00">
+        </div>
+        <div class="form-group">
+            <label>Profit:</label>
+            <input type="number" id="profit" placeholder="0.00" value="0">
+        </div>
+        <div class="form-group">
+            <label>Loss:</label>
+            <input type="number" id="loss" placeholder="0.00" value="0">
+        </div>
+        <div class="form-group">
+            <label>Upload Photo (चार्ट का स्क्रीनशॉट):</label>
+            <input type="file" id="tradePhoto" accept="image/*">
+        </div>
+        <div class="form-group">
+            <label>व्याख्या / Notes (Description):</label>
+            <textarea id="tradeDesc" placeholder="ट्रेड लेने का कारण या व्याख्या यहाँ लिखें..."></textarea>
+        </div>
+        <button onclick="processAndAddTrade()">Save Trade Data</button>
+    </div>
+
+    <!-- कम्पलीट चौकोर बॉक्स वाला चार्ट -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Position Name</th>
+                    <th>Entry Price</th>
+                    <th>Exit Price</th>
+                    <th>Profit</th>
+                    <th>Loss</th>
+                    <th>Photo</th>
+                    <th>व्याख्या (Description)</th>
+                </tr>
+            </thead>
+            <tbody id="tradeLog">
+                <!-- डेटा यहाँ लोड होगा -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="total-box">
+        <span>Total Profit/Loss:</span>
+        <span id="netTotal">0.00</span>
+    </div>
+
+    <script>
+        window.onload = function() {
+            displayTrades();
+        };
+
+        function processAndAddTrade() {
+            const name = document.getElementById('posName').value || '-';
+            if(name === '-') {
+                alert('कृपया Position Name भरें!');
+                return;
+            }
+
+            const date = document.getElementById('tradeDate').value || new Date().toLocaleDateString();
+            const entry = document.getElementById('entryPrice').value || '0';
+            const exit = document.getElementById('exitPrice').value || '0';
+            const profit = parseFloat(document.getElementById('profit').value) || 0;
+            const loss = parseFloat(document.getElementById('loss').value) || 0;
+            const desc = document.getElementById('tradeDesc').value || '-';
+            const photoFile = document.getElementById('tradePhoto').files[0];
+
+            if (photoFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    saveToLocalStorage(date, name, entry, exit, profit, loss, e.target.result, desc);
+                };
+                reader.readAsDataURL(photoFile);
+            } else {
+                saveToLocalStorage(date, name, entry, exit, profit, loss, '', desc);
+            }
+        }
+
+        function saveToLocalStorage(date, name, entry, exit, profit, loss, photoData, desc) {
+            const trade = { date, name, entry, exit, profit, loss, photo: photoData, desc };
+            let trades = JSON.parse(localStorage.getItem('purohit_master_trades')) || [];
+            trades.push(trade);
+            localStorage.setItem('purohit_master_trades', JSON.stringify(trades));
+
+            // फॉर्म साफ़ करें
+            document.getElementById('posName').value = '';
+            document.getElementById('entryPrice').value = '';
+            document.getElementById('exitPrice').value = '';
+            document.getElementById('profit').value = '0';
+            document.getElementById('loss').value = '0';
+            document.getElementById('tradePhoto').value = '';
+            document.getElementById('tradeDesc').value = '';
+
+            displayTrades();
+        }
+
+        function displayTrades() {
+            let trades = JSON.parse(localStorage.getItem('purohit_master_trades')) || [];
+            const log = document.getElementById('tradeLog');
+            log.innerHTML = '';
+            let netTotal = 0;
+
+            trades.forEach(t => {
+                netTotal += (t.profit - t.loss);
+                const imgTag = t.photo ? `<img src="${t.photo}" class="trade-img" onclick="window.open('${t.photo}')">` : 'No Photo';
+                
+                log.innerHTML += `
+                    <tr>
+                        <td>${t.date}</td>
+                        <td>${t.name}</td>
+                        <td>${t.entry}</td>
+                        <td>${t.exit}</td>
+                        <td class="text-profit">${t.profit > 0 ? '+'+t.profit : '0'}</td>
+                        <td class="text-loss">${t.loss > 0 ? '-'+t.loss : '0'}</td>
+                        <td>${imgTag}</td>
+                        <td class="desc-text">${t.desc}</td>
+                    </tr>
+                `;
+            });
+
+            const totalEl = document.getElementById('netTotal');
+            totalEl.innerText = netTotal.toFixed(2);
+            if(netTotal >= 0) {
+                totalEl.className = 'text-profit';
+            } else {
+                totalEl.className = 'text-loss';
+            }
+        }
+    </script>
+</body>
+</html>
