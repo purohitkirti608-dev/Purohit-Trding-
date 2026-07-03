@@ -3,329 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Purohit Trading - Premium Dashboard</title>
+    <title>Purohit Trading - Ultimate Dashboard</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body { background-color: #0b111e; color: #e2e8f0; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
         
-        /* Auth Screen Layer */
-        #auth-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: radial-gradient(circle at center, #111827 0%, #070a12 100%); display: flex; justify-content: center; align-items: center; z-index: 99999; padding: 20px; }
-        .auth-vault { background: linear-gradient(145deg, #111c30, #0c1322); border: 2px solid #38bdf8; border-radius: 24px; width: 100%; max-width: 350px; padding: 30px; box-shadow: 0 0 35px rgba(56, 189, 248, 0.25); text-align: center; }
-        
-        .app-logo { width: 90px; height: 90px; object-fit: contain; margin-bottom: 15px; border-radius: 50%; border: 2px solid #38bdf8; padding: 3px; background-color: #0b111e; box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); }
-        .auth-title { color: #38bdf8; font-size: 22px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
-        .auth-subtitle { color: #64748b; font-size: 12px; margin-bottom: 25px; text-transform: uppercase; }
-        
-        /* App Layout */
         .container { max-width: 100%; margin: 0 auto; padding: 10px; }
-        #main-app { display: none; } 
-        .header-container { display: flex; justify-content: space-between; align-items: center; padding: 10px; gap: 10px; }
+        .header-container { display: flex; justify-content: space-between; align-items: center; padding: 10px; gap: 10px; border-bottom: 1px solid #1e293b; margin-bottom: 15px; }
         .header-brand { display: flex; align-items: center; gap: 10px; }
-        .header-logo { width: 40px; height: 40px; object-fit: contain; border-radius: 50%; border: 1px solid #38bdf8; }
         .header h1 { color: #38bdf8; font-size: 18px; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
-        .btn-logout { background-color: #ef4444; color: white; border: none; padding: 8px 15px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 12px; }
         
-        /* Tabs Menu */
-        .tab-menu { display: flex; overflow-x: auto; background-color: #1e293b; border-radius: 8px; padding: 4px; margin-bottom: 15px; gap: 4px; }
-        .tab-btn { flex: 0 0 auto; min-width: 120px; text-align: center; padding: 12px 8px; cursor: pointer; color: #94a3b8; font-weight: bold; font-size: 12px; border-radius: 6px; white-space: nowrap; }
-        .tab-btn.active { background-color: #38bdf8; color: #0b111e; }
+        /* SETTINGS BUTTON IN HEADER */
+        .btn-settings-head { background-color: #334155; color: #f8fafc; border: 1px solid #475569; padding: 8px 14px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 13px; text-align: center; display: inline-block; text-decoration: none; }
+
+        /* PURE CSS TABS SYSTEM */
+        .tab-system { display: flex; flex-direction: column; }
+        input[type="radio"].tab-switch, input[type="checkbox"].setting-toggle { display: none !important; }
         
-        /* Forms & Cards */
-        .card { background-color: #141e30; border: 1px solid #243b55; border-radius: 12px; padding: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
-        .hidden { display: none !important; }
+        /* Tab Menu Layout - Clean & Responsive */
+        .tab-menu { display: flex; flex-wrap: wrap; background-color: #1e293b; border-radius: 8px; padding: 4px; margin-bottom: 15px; gap: 4px; }
+        .tab-label { flex: 1 1 auto; text-align: center; padding: 10px 4px; cursor: pointer; color: #94a3b8; font-weight: bold; font-size: 11px; border-radius: 6px; white-space: nowrap; display: inline-block; }
+        
+        .tab-panel { display: none; background-color: #141e30; border: 1px solid #243b55; border-radius: 12px; padding: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+
+        /* Tab Switching Logic (No JavaScript) */
+        #tab1-radio:checked ~ .tab-menu .label-tab1 { background-color: #38bdf8; color: #0b111e; }
+        #tab1-radio:checked ~ #panel1 { display: block; }
+        
+        #tab2-radio:checked ~ .tab-menu .label-tab2 { background-color: #38bdf8; color: #0b111e; }
+        #tab2-radio:checked ~ #panel2 { display: block; }
+        
+        #tab3-radio:checked ~ .tab-menu .label-tab3 { background-color: #38bdf8; color: #0b111e; }
+        #tab3-radio:checked ~ #panel3 { display: block; }
+
+        #tab4-radio:checked ~ .tab-menu .label-tab4 { background-color: #38bdf8; color: #0b111e; }
+        #tab4-radio:checked ~ #panel4 { display: block; }
+
+        /* FULL SCREEN SETTINGS MODAL */
+        #settings-popup { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(7, 10, 18, 0.95); z-index: 99999; padding: 20px; overflow-y: auto; }
+        #setting-trigger:checked ~ #settings-popup { display: block; }
+
+        .settings-card { background: #141e30; border: 1px solid #38bdf8; border-radius: 16px; max-width: 450px; margin: 30px auto; padding: 20px; box-shadow: 0 0 25px rgba(56, 189, 248, 0.15); }
+        .settings-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #243b55; padding-bottom: 10px; margin-bottom: 20px; }
+        .btn-close-settings { background-color: #ef4444; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold; }
+
+        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #1e293b; }
+        .setting-info { display: flex; flex-direction: column; gap: 2px; }
+        .setting-title { font-size: 14px; font-weight: bold; color: #f8fafc; }
+        .setting-desc { font-size: 11px; color: #64748b; }
+
+        /* Switch UI Toggle styling */
+        .switch-ui { position: relative; display: inline-block; width: 44px; height: 22px; background-color: #334155; border-radius: 11px; cursor: pointer; }
+        .switch-ui::after { content: ''; position: absolute; width: 18px; height: 18px; border-radius: 50%; background-color: white; top: 2px; left: 2px; transition: 0.2s; }
+        input[type="checkbox"]:checked + .switch-ui { background-color: #22c55e; }
+        input[type="checkbox"]:checked + .switch-ui::after { left: 24px; }
+
+        /* CARDS WITH EDIT & DELETE */
+        .trade-card { background-color: #1e293b; border-radius: 8px; padding: 12px; margin-bottom: 12px; border-left: 4px solid #38bdf8; }
+        .trade-info-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+        .trade-actions { display: flex; gap: 8px; margin-top: 10px; border-top: 1px solid #334155; padding-top: 8px; }
+        .btn-action { flex: 1; text-align: center; padding: 8px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer; text-decoration: none; }
+        .btn-edit { background-color: #eab308; color: #0b111e; }
+        .btn-delete { background-color: #ef4444; color: white; }
+
+        /* Form Components */
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 6px; font-size: 13px; color: #94a3b8; }
-        input, textarea, select { width: 100%; padding: 11px; background-color: #1e293b; border: 1px solid #334155; border-radius: 6px; color: #f8fafc; font-size: 14px; box-sizing: border-box; }
-        
+        input, textarea, select { width: 100%; padding: 11px; background-color: #1e293b; border: 1px solid #334155; border-radius: 6px; color: #f8fafc; font-size: 14px; }
         .row-grid { display: flex; gap: 10px; }
         .col-grid { flex: 1; }
-        .calc-preview { background-color: #1e293b; padding: 12px; border-radius: 6px; text-align: center; font-weight: bold; font-size: 15px; border: 1px dashed #38bdf8; }
-        .profit-text { color: #4ade80 !important; }
-        .loss-text { color: #f87171 !important; }
-        
-        .btn-submit-action { display: block; width: 100%; text-align: center; background-color: #0284c7; color: white; border: none; padding: 14px; font-size: 15px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 5px; text-decoration: none; }
-
-        /* Action Buttons Inside Table */
-        .btn-edit { background-color: #eab308; color: #000; border: none; padding: 4px 8px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-right: 5px; font-size: 11px; }
-        .btn-delete { background-color: #ef4444; color: #fff; border: none; padding: 4px 8px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 11px; }
-
-        /* Tables */
-        .total-banner { background-color: #1e293b; padding: 12px 15px; border-radius: 8px; font-weight: bold; font-size: 16px; margin-bottom: 15px; display: flex; justify-content: space-between; border-left: 4px solid #38bdf8; }
-        .table-responsive { width: 100%; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th, td { padding: 12px 10px; border-bottom: 1px solid #23395d; text-align: left; white-space: nowrap; }
-        th { background-color: #1e293b; color: #38bdf8; }
-        
-        /* Gallery Media System (CRITICAL FIX FOR PHOTOS) */
-        .gallery-item { background-color: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
-        .gallery-meta { display: flex; justify-content: space-between; font-size: 12px; color: #38bdf8; margin-bottom: 10px; font-weight: bold; }
-        .gallery-img { width: 100%; max-height: 300px; object-fit: contain; border-radius: 8px; background-color: #0b111e; border: 1px solid #243b55; margin-bottom: 10px; display: block; }
-        .gallery-notes { font-size: 13px; color: #e2e8f0; background-color: #141e30; padding: 10px; border-radius: 4px; word-break: break-word; border-left: 3px solid #38bdf8; }
-        .no-data { text-align: center; color: #94a3b8; padding: 20px 0; font-size: 14px; }
+        .btn-submit-action { display: block; width: 100%; text-align: center; background-color: #0284c7; color: white; border: none; padding: 14px; font-size: 15px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 5px; }
+        .no-data { text-align: center; color: #94a3b8; padding: 15px 0; font-size: 13px; }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen">
-        <div class="auth-vault">
-            <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=150" alt="Purohit Trading Logo" class="app-logo">
-            <div class="auth-title">Terminal Locked</div>
-            <div class="auth-subtitle">Enter PIN to Access</div>
-            <div class="form-group" style="text-align: left; margin-top: 15px;">
-                <label>Security PIN:</label>
-                <input type="password" id="terminal-pin-input" placeholder="••••" style="text-align: center; letter-spacing: 8px; font-size: 20px;">
+    <!-- SETTING POPUP TRIGGER -->
+    <input type="checkbox" id="setting-trigger" class="setting-toggle">
+
+    <!-- FULL SCREEN SETTINGS WINDOW -->
+    <div id="settings-popup">
+        <div class="settings-card">
+            <div class="settings-header">
+                <div style="font-size: 18px; font-weight: bold; color: #38bdf8;">⚙️ Terminal Settings</div>
+                <label for="setting-trigger" class="btn-close-settings">Close ×</label>
             </div>
-            <button class="btn-submit-action" onclick="unlockTerminalWithPin()">🔓 Unlock Terminal</button>
+            
+            <div class="setting-row">
+                <div class="setting-info">
+                    <span class="setting-title">App Security Pin</span>
+                    <span class="setting-desc">App khोलते समय PIN लॉक मांगें</span>
+                </div>
+                <div>
+                    <input type="checkbox" id="set-lock" checked style="display:none;">
+                    <label for="set-lock" class="switch-ui"></label>
+                </div>
+            </div>
+
+            <div class="setting-row">
+                <div class="setting-info">
+                    <span class="setting-title">Ultra Dark Mode</span>
+                    <span class="setting-desc">Amoled screen ke liye pure black layout</span>
+                </div>
+                <div>
+                    <input type="checkbox" id="set-dark" style="display:none;">
+                    <label for="set-dark" class="switch-ui"></label>
+                </div>
+            </div>
+
+            <div class="setting-row">
+                <div class="setting-info">
+                    <span class="setting-title">Cloud Sync (Sandbox)</span>
+                    <span class="setting-desc">Data ko backup storage me transfer karein</span>
+                </div>
+                <div>
+                    <input type="checkbox" id="set-sync" checked style="display:none;">
+                    <label for="set-sync" class="switch-ui"></label>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 15px;">
+                <label>Default Trading Segment:</label>
+                <select style="background-color: #1e293b; color: white; width: 100%; padding: 10px; border-radius: 6px;">
+                    <option>NSE Option (Nifty / BankNifty)</option>
+                    <option>MCX Commodity</option>
+                    <option>Crypto & Forex</option>
+                </select>
+            </div>
         </div>
     </div>
 
-    <div id="main-app" class="container">
+    <!-- MAIN APP CONTAINER -->
+    <div class="container">
         <div class="header-container">
             <div class="header-brand">
-                <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=80" alt="Logo" class="header-logo">
                 <div class="header"><h1>Purohit Trading</h1></div>
             </div>
-            <button class="btn-logout" onclick="lockTerminal()">Lock System</button>
+            <!-- Settings Button (Exactly on Top Right) -->
+            <label for="setting-trigger" class="btn-settings-head">⚙️ Settings</label>
         </div>
         
-        <div class="tab-menu">
-            <div class="tab-btn active" id="tab1" onclick="switchOption(1)">1. Trade Entry</div>
-            <div class="tab-btn" id="tab2" onclick="switchOption(2)">2. Trade History</div>
-            <div class="tab-btn" id="tab3" onclick="switchOption(3)">3. Upload Photo & Notes</div>
-            <div class="tab-btn" id="tab4" onclick="switchOption(4)">4. Photo History</div>
-            <div class="tab-btn" id="tab5" onclick="switchOption(5)">⚙️ Security Settings</div>
-        </div>
-
-        <div id="panel1" class="card">
-            <input type="hidden" id="edit-trade-id" value="">
-            <div class="form-group"><label>Date:</label><input type="date" id="t-date" value="2026-07-02"></div>
-            <div class="form-group"><label>Position Name:</label><input type="text" id="t-name" placeholder="e.g., NIFTY CE"></div>
-            <div class="row-grid form-group">
-                <div class="col-grid"><label>Lot Size:</label><input type="number" id="t-lot-size" value="25" oninput="runCalculation()"></div>
-                <div class="col-grid"><label>No. of Lots:</label><input type="number" id="t-lots" value="1" oninput="runCalculation()"></div>
+        <div class="tab-system">
+            <!-- Invisible Radio Buttons to Control 4 Tabs via CSS -->
+            <input type="radio" name="tabs" id="tab1-radio" class="tab-switch" checked>
+            <input type="radio" name="tabs" id="tab2-radio" class="tab-switch">
+            <input type="radio" name="tabs" id="tab3-radio" class="tab-switch">
+            <input type="radio" name="tabs" id="tab4-radio" class="tab-switch">
+            
+            <!-- Navigation Menu Links (All 4 Tabs Intact Now) -->
+            <div class="tab-menu">
+                <label for="tab1-radio" class="tab-label label-tab1">1. Entry</label>
+                <label for="tab2-radio" class="tab-label label-tab2">2. History</label>
+                <label for="tab3-radio" class="tab-label label-tab3">3. Upload</label>
+                <label for="tab4-radio" class="tab-label label-tab4">4. Photos & Notes</label>
             </div>
-            <div class="row-grid form-group">
-                <div class="col-grid"><label>Entry Price:</label><input type="number" id="t-entry" value="0.00" step="0.01" oninput="runCalculation()"></div>
-                <div class="col-grid"><label>Exit Price:</label><input type="number" id="t-exit" value="0.00" step="0.01" oninput="runCalculation()"></div>
-            </div>
-            <div class="form-group"><div class="calc-preview">Auto Calculate P&L: <span id="live-pnl">0.00</span></div></div>
-            <button class="btn-submit-action" id="btn-save" style="background-color: #0284c7;" onclick="saveNumericTrade()">Save Trade Data</button>
-        </div>
 
-        <div id="panel2" class="card hidden">
-            <div class="total-banner"><span>Total Profit/Loss:</span><span id="net-pnl">0.00</span></div>
-            <div class="table-responsive">
-                <table>
-                    <thead><tr><th>Date</th><th>Position</th><th>Qty</th><th>Entry</th><th>Exit</th><th>P&L</th><th>Actions</th></tr></thead>
-                    <tbody id="numeric-table-rows"><tr><td colspan="7" class="no-data">No data.</td></tr></tbody>
-                </table>
+            <!-- Panel 1: Trade Entry -->
+            <div id="panel1" class="tab-panel">
+                <div class="form-group"><label>Date:</label><input type="date" value="2026-07-03"></div>
+                <div class="form-group"><label>Position Name:</label><input type="text" placeholder="e.g., NIFTY 24200 CE"></div>
+                <div class="row-grid form-group">
+                    <div class="col-grid"><label>Lot Size:</label><input type="number" value="25"></div>
+                    <div class="col-grid"><label>No. of Lots:</label><input type="number" value="1"></div>
+                </div>
+                <div class="row-grid form-group">
+                    <div class="col-grid"><label>Entry Price:</label><input type="number" value="105.50"></div>
+                    <div class="col-grid"><label>Exit Price:</label><input type="number" value="132.00"></div>
+                </div>
+                <button class="btn-submit-action" type="button">Save Trade Data</button>
             </div>
-        </div>
 
-        <div id="panel3" class="card hidden">
-            <div class="form-group">
-                <label>Select Trade Link:</label>
-                <select id="trade-selector"><option value="general">-- General Note --</option></select>
+            <!-- Panel 2: Trade History (With Edit & Delete) -->
+            <div id="panel2" class="tab-panel">
+                <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color:#38bdf8;">📊 Active Trade Logs</div>
+                
+                <div class="trade-card" style="border-left-color: #22c55e;">
+                    <div class="trade-info-row">
+                        <span style="font-weight: bold; color: #f8fafc;">NIFTY 24200 CE</span>
+                        <span style="color: #22c55e; font-weight: bold;">+₹662.50</span>
+                    </div>
+                    <div class="trade-info-row" style="color: #94a3b8; font-size: 11px;">
+                        <span>Lots: 1 (Qty: 25) | Entry: 105.50 | Exit: 132.00</span>
+                    </div>
+                    <div class="trade-actions">
+                        <span class="btn-action btn-edit">✏️ Edit Trade</span>
+                        <span class="btn-action btn-delete">🗑️ Delete</span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group"><label>Upload Photo (Optional):</label><input type="file" id="t-photo" accept="image/*"></div>
-            <div class="form-group"><label>Trading Notes / Logic:</label><textarea id="t-notes" rows="4" placeholder="Apna trading setup ya logic yahan likhein..."></textarea></div>
-            <button class="btn-submit-action" style="background-color: #0284c7;" onclick="savePhotoAndNotes()">Add Photo & Notes</button>
-        </div>
 
-        <div id="panel4" class="card hidden">
-            <div id="gallery-container"><div class="no-data">No history found.</div></div>
-        </div>
-
-        <div id="panel5" class="card hidden">
-            <div class="auth-title" style="font-size: 18px; text-align: left; margin-bottom: 15px;">Change Terminal PIN</div>
-            <div class="form-group">
-                <label>Enter New Security PIN:</label>
-                <input type="text" id="new-pin-setter" placeholder="e.g. 9999" maxlength="6" style="font-size: 16px; letter-spacing: 3px;">
+            <!-- Panel 3: Upload Photo & Notes -->
+            <div id="panel3" class="tab-panel">
+                <div class="form-group"><label>Upload Setup Photo:</label><input type="file" accept="image/*"></div>
+                <div class="form-group"><label>Trading Notes / Logic:</label><textarea rows="4" placeholder="Apna trading setup ya logic likhein..."></textarea></div>
+                <button class="btn-submit-action" type="button">Add Details</button>
             </div>
-            <button class="btn-submit-action" style="background-color: #22c55e;" onclick="changeTerminalPin()">Update Security PIN</button>
+
+            <!-- Panel 4: Photos & Notes History (ADDED BACK & COMPREHENSIVE) -->
+            <div id="panel4" class="tab-panel">
+                <div style="font-size: 14px; font-weight: bold; margin-bottom: 12px; color:#38bdf8;">📸 Saved Charts & Notes Log</div>
+                
+                <!-- Sample Photo & Note Record -->
+                <div class="trade-card" style="border-left-color: #a855f7;">
+                    <div class="trade-info-row">
+                        <span style="font-weight: bold; color: #f8fafc;">Setup: Breakout Strategy</span>
+                        <span style="color: #a855f7; font-size: 12px;">03 July 2026</span>
+                    </div>
+                    <p style="font-size: 12px; color: #94a3b8; margin: 5px 0 10px 0; line-height: 1.4;">
+                        "Double bottom patterns clear dikh raha tha support par. Volume confirmation ke sath confirmation line break hote hi entry li gayi."
+                    </p>
+                    <div style="background-color: #111a2e; padding: 15px; border-radius: 6px; text-align: center; border: 1px dashed #334155; font-size: 12px; color: #64748b; margin-bottom: 5px;">
+                        🖼️ [ Chart_Screen_01.png Attached ]
+                    </div>
+                    
+                    <!-- Edit & Delete buttons inside Photo History too -->
+                    <div class="trade-actions">
+                        <span class="btn-action btn-edit">✏️ Edit Note</span>
+                        <span class="btn-action btn-delete">🗑️ Delete Log</span>
+                    </div>
+                </div>
+            </div>
+            
         </div>
     </div>
 
-    <script>
-        var MY_SECRET_PIN = "9512"; 
-        var tradeDatabase = [];
-        var generalNotesTimeline = [];
-
-        window.unlockTerminalWithPin = function() {
-            var userEntered = document.getElementById('terminal-pin-input').value;
-            if (userEntered.trim() === MY_SECRET_PIN.toString()) {
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('main-app').style.display = 'block';
-                document.getElementById('terminal-pin-input').value = '';
-            } else {
-                alert("Wrong Security PIN! Try Again.");
-            }
-        };
-
-        window.lockTerminal = function() {
-            document.getElementById('main-app').style.display = 'none';
-            document.getElementById('auth-screen').style.display = 'flex';
-            switchOption(1);
-        };
-
-        window.changeTerminalPin = function() {
-            var inputVal = document.getElementById('new-pin-setter').value.trim();
-            if(inputVal.length < 4) {
-                alert("PIN must be at least 4 digits long!");
-                return;
-            }
-            MY_SECRET_PIN = inputVal;
-            alert("Success! Your Terminal PIN has been changed to: " + MY_SECRET_PIN);
-            document.getElementById('new-pin-setter').value = '';
-            lockTerminal();
-        };
-
-        window.switchOption = function(n) {
-            for(var i=1; i<=5; i++) {
-                document.getElementById('tab'+i).className = 'tab-btn';
-                document.getElementById('panel'+i).className = 'card hidden';
-            }
-            document.getElementById('tab'+n).className = 'tab-btn active';
-            document.getElementById('panel'+n).className = 'card';
-            if(n===2) buildNumericTable();
-            if(n===4) buildGallery();
-        };
-
-        window.runCalculation = function() {
-            var size = parseFloat(document.getElementById('t-lot-size').value)||0;
-            var lots = parseFloat(document.getElementById('t-lots').value)||0;
-            var entry = parseFloat(document.getElementById('t-entry').value)||0;
-            var exit = parseFloat(document.getElementById('t-exit').value)||0;
-            var qty = size * lots;
-            var pnl = (exit - entry) * qty;
-            document.getElementById('live-pnl').innerText = pnl.toFixed(2);
-            document.getElementById('live-pnl').className = pnl >= 0 ? "profit-text" : "loss-text";
-        };
-
-        window.saveNumericTrade = function() {
-            var date = document.getElementById('t-date').value;
-            var name = document.getElementById('t-name').value || 'Trade Log';
-            var size = parseFloat(document.getElementById('t-lot-size').value)||0;
-            var lots = parseFloat(document.getElementById('t-lots').value)||0;
-            var entry = parseFloat(document.getElementById('t-entry').value)||0;
-            var exit = parseFloat(document.getElementById('t-exit').value)||0;
-            var qty = size * lots;
-            var pnl = (exit - entry) * qty;
-            var editId = document.getElementById('edit-trade-id').value;
-
-            if(editId) {
-                var idx = tradeDatabase.findIndex(function(x) { return x.id === parseFloat(editId); });
-                if(idx !== -1) {
-                    tradeDatabase[idx].date = date;
-                    tradeDatabase[idx].name = name;
-                    tradeDatabase[idx].qty = qty;
-                    tradeDatabase[idx].entry = entry;
-                    tradeDatabase[idx].exit = exit;
-                    tradeDatabase[idx].finalPnL = pnl;
-                }
-                document.getElementById('edit-trade-id').value = '';
-                document.getElementById('btn-save').innerText = 'Save Trade Data';
-            } else {
-                tradeDatabase.push({id: Date.now(), date: date, name: name, qty: qty, entry: entry, exit: exit, finalPnL: pnl});
-            }
-
-            document.getElementById('t-name').value = '';
-            document.getElementById('t-entry').value = '0.00';
-            document.getElementById('t-exit').value = '0.00';
-            switchOption(2);
-        };
-
-        window.buildNumericTable = function() {
-            var tbody = document.getElementById('numeric-table-rows');
-            tbody.innerHTML = '';
-            if(tradeDatabase.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="no-data">No data.</td></tr>';
-                return;
-            }
-            var total = 0;
-            tradeDatabase.forEach(function(t) {
-                total += t.finalPnL;
-                var tr = document.createElement('tr');
-                tr.innerHTML = '<td>'+t.date+'</td><td>'+t.name+'</td><td>'+t.qty+'</td><td>'+t.entry.toFixed(2)+'</td><td>'+t.exit.toFixed(2)+'</td><td class="'+(t.finalPnL>=0?'profit-text':'loss-text')+'">'+t.finalPnL.toFixed(2)+'</td><td><button class="btn-edit" onclick="triggerEditItem('+t.id+')">Edit</button><button class="btn-delete" onclick="triggerDeleteItem('+t.id+')">Delete</button></td>';
-                tbody.appendChild(tr);
-            });
-            document.getElementById('net-pnl').innerText = total.toFixed(2);
-            document.getElementById('net-pnl').className = total >= 0 ? "profit-text" : "loss-text";
-        };
-
-        window.triggerEditItem = function(id) {
-            var item = tradeDatabase.find(function(x){ return x.id === id; });
-            if(!item) return;
-            document.getElementById('edit-trade-id').value = item.id;
-            document.getElementById('t-date').value = item.date;
-            document.getElementById('t-name').value = item.name;
-            document.getElementById('t-entry').value = item.entry;
-            document.getElementById('t-exit').value = item.exit;
-            document.getElementById('btn-save').innerText = 'Update Trade';
-            switchOption(1);
-            runCalculation();
-        };
-
-        window.triggerDeleteItem = function(id) {
-            if(confirm("Kya aap is trade ko delete karna chahte hain?")) {
-                tradeDatabase = tradeDatabase.filter(function(x) { return x.id !== id; });
-                buildNumericTable();
-            }
-        };
-
-        // FIXED: FileReader safely converts images to Base64 data string
-        window.savePhotoAndNotes = function() {
-            var text = document.getElementById('t-notes').value.trim();
-            if(!text) { alert("Please write some notes text!"); return; }
-            
-            var fileInput = document.getElementById('t-photo');
-
-            if(fileInput.files && fileInput.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    generalNotesTimeline.push({
-                        text: text, 
-                        image: e.target.result, // Core base64 image data saved here
-                        time: new Date().toLocaleTimeString()
-                    });
-                    finalizeNotesClearance();
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                generalNotesTimeline.push({
-                    text: text, 
-                    image: null, 
-                    time: new Date().toLocaleTimeString()
-                });
-                finalizeNotesClearance();
-            }
-        };
-
-        function finalizeNotesClearance() {
-            document.getElementById('t-notes').value = '';
-            document.getElementById('t-photo').value = '';
-            switchOption(4);
-        }
-
-        // FIXED: Image Rendering logic added inside card generation
-        window.buildGallery = function() {
-            var container = document.getElementById('gallery-container');
-            container.innerHTML = '';
-            if(generalNotesTimeline.length === 0) {
-                container.innerHTML = '<div class="no-data">No history found.</div>';
-                return;
-            }
-            generalNotesTimeline.forEach(function(n) {
-                var div = document.createElement('div');
-                div.className = 'gallery-item';
-                
-                // If image exists, render image component safely
-                var imageHtml = n.image ? '<img src="' + n.image + '" class="gallery-img">' : '';
-                
-                div.innerHTML = '<div class="gallery-meta"><span>📌 Note & Setup Log</span><span>' + n.time + '</span></div>' + imageHtml + '<div class="gallery-notes">' + n.text + '</div>';
-                container.appendChild(div);
-            });
-        };
-    </script>
 </body>
 </html>
